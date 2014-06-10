@@ -31,6 +31,26 @@ class MWSOAPObjectTest < MiniTest::Test
     end
   end
 
+  def test_allows_omission_at_path?
+    hash = MultiXml.parse('
+    <foo>
+      <bazes>
+        <baz>
+          <doge>Yummy</doge>
+        </baz>
+        <baz>
+          <doge>Delish</doge>
+        </baz>
+      </bazes>
+    </foo>')
+
+    oap = MWS::OAPObject.new('whatever')
+
+    oap.stub(:response_hash, hash) do
+      assert_equal true, oap.at_path?("bazes baz doge", "Delish")
+    end
+  end
+
   def test_exception_at_path?
     oap = MWS::OAPObject.new('whatever')
 
@@ -68,6 +88,23 @@ class MWSOAPObjectTest < MiniTest::Test
       assert_equal "Wow", oap.at_path("foo simple hi")
       assert_equal nil, oap.at_path("foo bazes bad path")
       assert_equal nil, oap.at_path("nothing at all")
+    end
+  end
+
+  def test_allows_omission_at_path
+    hash = MultiXml.parse('
+    <foo>
+      <simple>
+        <yo>
+          <hi>Wow</hi>
+        </yo>
+      </simple>
+    </foo>')
+
+    oap = MWS::OAPObject.new('whatever')
+
+    oap.stub(:response_hash, hash) do
+      assert_equal "Wow", oap.at_path("yo hi")
     end
   end
 

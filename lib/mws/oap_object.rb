@@ -61,9 +61,18 @@ module MWS
           end
 
         else
-          if node[part].nil? && raise_on_nil
-            raise Peddler::MissingDataError.new(response_hash, path),
-              "Missing response data at '#{path}'"
+          if node[part].nil?
+            if node.length == 1 &&
+               node.values.first.kind_of?(Hash) &&
+               value_at_path?(node.values.first, path, value, raise_on_nil)
+
+              return true
+            end
+
+            if raise_on_nil
+              raise Peddler::MissingDataError.new(response_hash, path),
+                "Missing response data at '#{path}'"
+            end
           end
 
           return node[part] == value
@@ -78,6 +87,10 @@ module MWS
 
       path.split(' ').each do |part|
         if node[part].nil?
+          if node.length == 1 && node.values.first.kind_of?(Hash)
+            return value_at(node.values.first, path, raise_on_nil)
+          end
+
           if raise_on_nil
             raise Peddler::MissingDataError.new(response_hash, path),
               "Missing response data at '#{path}'"
