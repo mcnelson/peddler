@@ -2,7 +2,7 @@ require 'jeff'
 require 'peddler/operation'
 require 'peddler/parser'
 require 'peddler/errors'
-require 'nokogiri'
+require 'multi_xml'
 
 module Peddler
   # @abstract Subclass to implement an MWS API section.
@@ -81,9 +81,11 @@ module Peddler
 
     rescue => e
       if e.respond_to?(:request) && e.respond_to?(:response)
-        xml = Nokogiri::XML(e.response.body)
+        error = MWS::OAPObject.new('error')
+        error.response_object = e.response
+
         raise Peddler::ApiError.new(e.request, e.response),
-          "#{xml.at_css('Error > Code').text}: #{xml.at_css('Error > Message').text}"
+          "#{error.at_path('ErrorResponse Error Code')}: #{error.at_path('ErrorResponse Error Message')}"
       else
         raise
       end

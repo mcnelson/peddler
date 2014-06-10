@@ -117,9 +117,18 @@ class PeddlerClientTest < MiniTest::Test
   end
 
   def test_raises_pretty_error
-    response = Class.new do
-      define_method(:body) { "<Error><Code>DerpHerps</Code><Message>Such pretty, so message</Message></Error>" }
-    end.new
+    error_xml = <<-ERR
+      <ErrorResponse xmlns="http://mws.amazonservices.com/schema/OffAmazonPayments/2013-01-01">
+        <Error>
+          <Type>Sender</Type>
+          <Code>DerpHerps</Code>
+          <Message>Such pretty, so message</Message>
+        </Error>
+        <RequestId>233cdd17-cbfc-4de4-bf4e-8872014ac57d</RequestId>
+      </ErrorResponse>
+    ERR
+
+    response = OpenStruct.new(body: error_xml)
 
     excon_error = Class.new(StandardError) do
       define_method(:request) { "Whatevs" }

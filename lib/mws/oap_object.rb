@@ -1,10 +1,11 @@
-require 'nokogiri'
+require 'multi_xml'
 
 module MWS
   class OAPObject
     NAME_SPLITTER = /^(.+)\s(.+)$/
 
-    attr_reader :api, :id, :response_object, :response_hash
+    attr_reader :api, :id
+    attr_accessor :response_object
 
     def initialize(id, api = MWS.off_amazon_payments)
       @id = id

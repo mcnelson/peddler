@@ -1,6 +1,5 @@
 require 'mws/off_amazon_payments'
 require 'mws/oap_object'
-require 'nokogiri'
 
 module MWS
   # This class models an Amazon Order Reference Object, which is a record created on their end to track information
