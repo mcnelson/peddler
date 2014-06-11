@@ -2,8 +2,8 @@ require 'peddler/client'
 require 'mws/order_reference_object'
 require 'mws/authorization_object'
 require 'mws/capture_object'
-
 require 'mws/authorize_response_object'
+require 'mws/capture_response_object'
 
 module MWS
   class LoginAndPay
