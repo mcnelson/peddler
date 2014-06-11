@@ -2,13 +2,29 @@ require 'helper'
 require 'mws/order_reference_object'
 
 class MWSOAPObjectTest < MiniTest::Test
-  def test_initialization
-    oro = MWS::OAPObject.new('blah')
-    assert_equal oro.id, 'blah'
-    assert oro.api.instance_of?(MWS::OffAmazonPayments)
+  def test_at_path?
+    xml = <<-EOS
+      <foo>
+        <bazes>
+          <baz>
+            <doge>Yummy</doge>
+          </baz>
+          <baz>
+            <doge>Delish</doge>
+          </baz>
+        </bazes>
+      </foo>
+    EOS
+
+    oap = MWS::OAPObject.new(OpenStruct.new(body: xml))
+
+    assert_equal true, oap.at_path?("foo bazes baz doge", "Delish")
+    assert_equal true, oap.at_path?("foo bazes baz doge", "Yummy")
+    assert_equal false, oap.at_path?("foo bazes baz doge", "yummy")
+    assert_equal false, oap.at_path?("foo bazes baz doge", "dumb")
   end
 
-  def test_at_path?
+  def test_allows_omission_at_path?
     hash = MultiXml.parse('
     <foo>
       <bazes>
@@ -24,10 +40,7 @@ class MWSOAPObjectTest < MiniTest::Test
     oap = MWS::OAPObject.new('whatever')
 
     oap.stub(:response_hash, hash) do
-      assert_equal true, oap.at_path?("foo bazes baz doge", "Delish")
-      assert_equal true, oap.at_path?("foo bazes baz doge", "Yummy")
-      assert_equal false, oap.at_path?("foo bazes baz doge", "yummy")
-      assert_equal false, oap.at_path?("foo bazes baz doge", "dumb")
+      assert_equal true, oap.at_path?("bazes baz doge", "Delish")
     end
   end
 
@@ -68,6 +81,23 @@ class MWSOAPObjectTest < MiniTest::Test
       assert_equal "Wow", oap.at_path("foo simple hi")
       assert_equal nil, oap.at_path("foo bazes bad path")
       assert_equal nil, oap.at_path("nothing at all")
+    end
+  end
+
+  def test_allows_omission_at_path
+    hash = MultiXml.parse('
+    <foo>
+      <simple>
+        <yo>
+          <hi>Wow</hi>
+        </yo>
+      </simple>
+    </foo>')
+
+    oap = MWS::OAPObject.new('whatever')
+
+    oap.stub(:response_hash, hash) do
+      assert_equal "Wow", oap.at_path("yo hi")
     end
   end
 

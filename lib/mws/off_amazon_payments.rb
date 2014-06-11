@@ -1,5 +1,4 @@
 require 'peddler/client'
-require 'mws/order_reference_object'
 
 module MWS
   # The Off-Amazon Payments API helps you to process payments for purchases
@@ -49,15 +48,6 @@ module MWS
         .add(opts.merge('AmazonOrderReferenceId' => amazon_order_reference_id))
 
       run
-    end
-
-    # Returns a representation of an Order Reference Object.
-    #
-    # @see http://docs.developer.amazonservices.com/en_US/off_amazon_payments/OffAmazonPayments_GetOrderReferenceDetails.html
-    # @param amazon_order_reference_id [String]
-    # @return [MWS::OrderReferenceObject]
-    def get_order_reference_object(amazon_order_reference_id)
-      MWS::OrderReferenceObject.new(amazon_order_reference_id, self).tap { |o| o.fetch! }
     end
 
     # Confirms that the order reference is free of constraints and all required

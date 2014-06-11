@@ -12,51 +12,23 @@ class MWSOrderReferenceObjectTest < MiniTest::Test
     oro.stub(:state, :closed)    { assert oro.closed?, true }
   end
 
-  def test_fetch
-    peddler = stubbed_peddler(EXAMPLE_ORO_XML)
-    oro = MWS::OrderReferenceObject.new('donkey', peddler)
-    oro.fetch!
-
-    assert oro.response_object.body.length > 0
-  end
 
   def test_partial_destination_address_true
-    peddler = stubbed_peddler(EXAMPLE_ORO_XML_PARTIAL)
-    oro = MWS::OrderReferenceObject.new('donkey', peddler)
-    oro.fetch!
-
-    assert oro.partial_destination_address?
+    oro = MWS::OrderReferenceObject.new(OpenStruct.new(body: EXAMPLE_ORO_XML_PARTIAL))
+    assert_equal true, oro.partial_destination_address?
   end
 
   def test_partial_destination_address_false
-    peddler = stubbed_peddler(EXAMPLE_ORO_XML)
-    oro = MWS::OrderReferenceObject.new('donkey', peddler)
-    oro.fetch!
-
-    assert !oro.partial_destination_address?
+    oro = MWS::OrderReferenceObject.new(OpenStruct.new(body: EXAMPLE_ORO_XML))
+    assert_equal false, oro.partial_destination_address?
   end
 
   def test_state
-    peddler = stubbed_peddler(EXAMPLE_ORO_XML)
-    oro = MWS::OrderReferenceObject.new('donkey', peddler)
-    oro.fetch!
-
+    oro = MWS::OrderReferenceObject.new(OpenStruct.new(body: EXAMPLE_ORO_XML))
     assert_equal :open, oro.state
   end
 
-
   private
-
-  def stubbed_peddler(xml)
-    response = Class.new(Excon::Response) do
-      define_method(:body) { xml }
-    end.new
-
-    peddler = Minitest::Mock.new
-    peddler.expect(:get_order_reference_details, response, ['donkey'])
-
-    peddler
-  end
 
   EXAMPLE_ORO_XML = <<-BODY
     <GetOrderReferenceDetailsResponse xmlns="http://mws.amazonservices.com/schema/OffAmazonPayments/2013-01-01">
