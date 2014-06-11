@@ -1,6 +1,9 @@
 require 'peddler/client'
 require 'mws/order_reference_object'
 require 'mws/authorization_object'
+require 'mws/capture_object'
+
+require 'mws/authorize_response_object'
 
 module MWS
   class LoginAndPay
@@ -10,19 +13,24 @@ module MWS
       @api = api
     end
 
-    def get_order_reference_object(amazon_order_reference_id)
-      excon_response = api.get_order_reference_details(amazon_order_reference_id)
+    def get_order_reference_object(oro_id)
+      excon_response = api.get_order_reference_details(oro_id)
       MWS::OrderReferenceObject.new(excon_response)
     end
 
-    def get_authorization_object(amazon_authorization_id)
-      excon_response = api.get_authorization_details(amazon_authorization_id)
+    def get_authorization_object(authorization_id)
+      excon_response = api.get_authorization_details(authorization_id)
       MWS::AuthorizationObject.new(excon_response)
     end
 
-    def get_capture_object(amazon_authorization_id)
-      excon_response = api.get_order_reference_details(amazon_order_reference_id)
-      MWS::AuthorizationObject.new(excon_response)
+    def get_capture_object(capture_id)
+      excon_response = api.get_order_reference_details(capture_id)
+      MWS::CaptureObject.new(excon_response)
+    end
+
+    def authorize(oro_id, reference_id, amount, opts)
+      excon_result = api.authorize(oro_id, reference_id, amount, opts)
+      MWS::AuthorizeResponseObject.new(excon_result)
     end
   end
 end
