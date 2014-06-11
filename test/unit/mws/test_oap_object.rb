@@ -2,33 +2,26 @@ require 'helper'
 require 'mws/order_reference_object'
 
 class MWSOAPObjectTest < MiniTest::Test
-  def test_initialization
-    oro = MWS::OAPObject.new('blah')
-    assert_equal oro.id, 'blah'
-    assert oro.api.instance_of?(MWS::OffAmazonPayments)
-  end
-
   def test_at_path?
-    hash = MultiXml.parse('
-    <foo>
-      <bazes>
-        <baz>
-          <doge>Yummy</doge>
-        </baz>
-        <baz>
-          <doge>Delish</doge>
-        </baz>
-      </bazes>
-    </foo>')
+    xml = <<-EOS
+      <foo>
+        <bazes>
+          <baz>
+            <doge>Yummy</doge>
+          </baz>
+          <baz>
+            <doge>Delish</doge>
+          </baz>
+        </bazes>
+      </foo>
+    EOS
 
-    oap = MWS::OAPObject.new('whatever')
+    oap = MWS::OAPObject.new(OpenStruct.new(body: xml))
 
-    oap.stub(:response_hash, hash) do
-      assert_equal true, oap.at_path?("foo bazes baz doge", "Delish")
-      assert_equal true, oap.at_path?("foo bazes baz doge", "Yummy")
-      assert_equal false, oap.at_path?("foo bazes baz doge", "yummy")
-      assert_equal false, oap.at_path?("foo bazes baz doge", "dumb")
-    end
+    assert_equal true, oap.at_path?("foo bazes baz doge", "Delish")
+    assert_equal true, oap.at_path?("foo bazes baz doge", "Yummy")
+    assert_equal false, oap.at_path?("foo bazes baz doge", "yummy")
+    assert_equal false, oap.at_path?("foo bazes baz doge", "dumb")
   end
 
   def test_allows_omission_at_path?

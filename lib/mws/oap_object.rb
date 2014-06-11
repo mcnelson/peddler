@@ -3,18 +3,10 @@ require 'multi_xml'
 module MWS
   class OAPObject
     NAME_SPLITTER = /^(.+)\s(.+)$/
-
-    attr_reader :api, :id
     attr_accessor :response_object
 
-    def initialize(id, api = MWS.off_amazon_payments)
-      @id = id
-      @api = api
-      @response_object = nil
-    end
-
-    def fetch!
-      raise '#fetch! not implemented on child class'
+    def initialize(response_object)
+      @response_object = response_object
     end
 
     def at_path?(path, value, raise_on_nil = false)
